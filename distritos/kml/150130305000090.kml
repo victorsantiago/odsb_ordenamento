@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
 <Document>
-<Placemark xmlns="http://www.opengis.net/kml/2.2" id="56EF955460000003">
-				<name>150130305000001</name>
+<Placemark xmlns="http://www.opengis.net/kml/2.2" id="56EF955461000036">
+				<name>150130305000090</name>
 				<description>&lt;center&gt;&lt;table&gt;&lt;tr&gt;&lt;th colspan='2' align='center'&gt;&lt;em&gt;Attributes&lt;/em&gt;&lt;/th&gt;&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
 &lt;th&gt;CD_SETOR&lt;/th&gt;
-&lt;td&gt;150130305000001&lt;/td&gt;
+&lt;td&gt;150130305000090&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor=""&gt;
 &lt;th&gt;SITUACAO&lt;/th&gt;
 &lt;td&gt;Urbana&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
 &lt;th&gt;CD_SIT&lt;/th&gt;
-&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;3&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor=""&gt;
 &lt;th&gt;CD_TIPO&lt;/th&gt;
 &lt;td&gt;0&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
 &lt;th&gt;AREA_KM2&lt;/th&gt;
-&lt;td&gt;0.18837799457384&lt;/td&gt;
+&lt;td&gt;1.973286448993281&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor=""&gt;
 &lt;th&gt;CD_REGIAO&lt;/th&gt;
 &lt;td&gt;1&lt;/td&gt;
@@ -46,6 +46,12 @@
 &lt;th&gt;CD_SUBDIST&lt;/th&gt;
 &lt;td&gt;15013030500&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_NU&lt;/th&gt;
+&lt;td&gt;1501303002&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_NU&lt;/th&gt;
+&lt;td&gt;Vila do Conde&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
 &lt;th&gt;CD_RGINT&lt;/th&gt;
 &lt;td&gt;1501&lt;/td&gt;
 &lt;/tr&gt;&lt;tr bgcolor=""&gt;
@@ -61,11 +67,11 @@
 				<styleUrl>#__managed_style_0D874EA56C3A11E5FE69</styleUrl>
 				<ExtendedData>
 					<SchemaData schemaUrl="#__managed_schema">
-						<SimpleData name="COL56EF94E0738D3E66">150130305000001</SimpleData>
+						<SimpleData name="COL56EF94E0738D3E66">150130305000090</SimpleData>
 						<SimpleData name="COL56EF9556323B3760">Urbana</SimpleData>
-						<SimpleData name="COL56EF9556325274AE">1</SimpleData>
+						<SimpleData name="COL56EF9556325274AE">3</SimpleData>
 						<SimpleData name="COL56EF955632B780A0">0</SimpleData>
-						<SimpleData name="COL56EF955632DBBBFF">0.18837799457384</SimpleData>
+						<SimpleData name="COL56EF955632DBBBFF">1.9732864489932811</SimpleData>
 						<SimpleData name="COL56EF95563231A461">1</SimpleData>
 						<SimpleData name="COL56EF955633282657">Norte</SimpleData>
 						<SimpleData name="COL56EF955633678914">15</SimpleData>
@@ -75,6 +81,8 @@
 						<SimpleData name="COL56EF9556335027C0">150130305</SimpleData>
 						<SimpleData name="COL56EF955633F60899">Barcarena</SimpleData>
 						<SimpleData name="COL56EF95563364643D">15013030500</SimpleData>
+						<SimpleData name="COL56EF9556338C30EA">1501303002</SimpleData>
+						<SimpleData name="COL56EF955633A6964E">Vila do Conde</SimpleData>
 						<SimpleData name="COL56EF955633B6C0E2">1501</SimpleData>
 						<SimpleData name="COL56EF955633C6B5E8">Belém</SimpleData>
 						<SimpleData name="COL56EF9556332D321E">150001</SimpleData>
@@ -85,7 +93,7 @@
 					<outerBoundaryIs>
 						<LinearRing>
 							<coordinates>
-								-48.6228623,-1.50603289997159,0 -48.6237226,-1.50539219997159,0 -48.6238202,-1.5053201999716,0 -48.62455510000001,-1.50477779997158,0 -48.6254183999999,-1.50414059997162,0 -48.6258680999999,-1.50380869997163,0 -48.6266072,-1.5032631999716,0 -48.6266512,-1.50338999997163,0 -48.6268689999999,-1.50357599997161,0 -48.62716090000001,-1.5039139999716,0 -48.62728689999989,-1.50421099997159,0 -48.627738,-1.50454899997158,0 -48.62799680000001,-1.50496999997159,0 -48.6282661,-1.50519599997158,0 -48.6284011,-1.50531449997157,0 -48.6285361,-1.50543299997155,0 -48.6291667,-1.50697799997154,0 -48.6286123,-1.50740749997153,0 -48.6280578999999,-1.50783699997152,0 -48.6272433,-1.50846809997153,0 -48.6264237,-1.50733699997154,0 -48.6258066999999,-1.50648539997158,0 -48.6251847,-1.50562709997159,0 -48.62434989999999,-1.50624619997157,0 -48.6234876,-1.50688099997156,0 -48.622629,-1.50751299997155,0 -48.6219986999999,-1.50667369997157,0 -48.6228623,-1.50603289997159,0 
+								-48.7038228,-1.52524869997121,0 -48.70386169999999,-1.52526029997121,0 -48.7040658,-1.5253211999712,0 -48.7043113,-1.52540089997121,0 -48.704945,-1.5259787999712,0 -48.7066836,-1.52805659997115,0 -48.7079593,-1.52967119997111,0 -48.71086909999999,-1.52984829997113,0 -48.71139049999989,-1.5298799999711,0 -48.7129199,-1.52971839997115,0 -48.7152998999999,-1.52946699997113,0 -48.7166483999999,-1.52982679997113,0 -48.7167587,-1.52985619997109,0 -48.7168149999999,-1.52987699997111,0 -48.7168705,-1.52989969997109,0 -48.7169223999999,-1.52992089997114,0 -48.7171172,-1.5299947999711,0 -48.7172012,-1.53002659997109,0 -48.7172624,-1.5300498999711,0 -48.71731030000001,-1.53006799997113,0 -48.7172709,-1.5301952999711,0 -48.70493190000001,-1.54553929997084,0 -48.7005119999999,-1.54230129997089,0 -48.7017493,-1.53591579997099,0 -48.7017567,-1.53587779997103,0 -48.7019749,-1.53474539997104,0 -48.7022737,-1.53321849997108,0 -48.70265130000001,-1.53126799997109,0 -48.70291699999989,-1.52989539997109,0 -48.7029376,-1.52978909997113,0 -48.7033216,-1.52780529997116,0 -48.7036881,-1.52591249997119,0 -48.7038228,-1.52524869997121,0 
 							</coordinates>
 						</LinearRing>
 					</outerBoundaryIs>

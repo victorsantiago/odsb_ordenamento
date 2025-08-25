@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="recortado" id="recortado">
+	<SimpleField name="CD_SETOR" type="string"></SimpleField>
+</Schema>
+<Folder><name>recortado</name>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#recortado">
+		<SimpleData name="CD_SETOR">150130305000069P</SimpleData>
+	</SchemaData></ExtendedData>
+      <MultiGeometry><Polygon><outerBoundaryIs><LinearRing><coordinates>-48.67829495,-1.52376522799995 -48.678195414,-1.52444561699997 -48.678067883,-1.52514234899996 -48.6779033249999,-1.52581757799993 -48.679720553,-1.52716715199995 -48.680022516,-1.52667832599997 -48.680152044,-1.52630320999998 -48.6802419429999,-1.52557879499994 -48.681176562,-1.52570918199996 -48.682120524,-1.52591396499997 -48.682044159,-1.52567888899995 -48.6818779819999,-1.52539514099993 -48.681849072,-1.52535126599997 -48.6815818279999,-1.52494569699996 -48.6807815999999,-1.52373126999993 -48.680189544,-1.52411951499994 -48.6801377479999,-1.52415348099993 -48.67829495,-1.52376522799995</coordinates></LinearRing></outerBoundaryIs></Polygon></MultiGeometry>
+  </Placemark>
+</Folder>
+</Document></kml>

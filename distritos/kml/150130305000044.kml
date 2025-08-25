@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+<Placemark xmlns="http://www.opengis.net/kml/2.2" id="56EF95546000001C">
+				<name>150130305000044</name>
+				<description>&lt;center&gt;&lt;table&gt;&lt;tr&gt;&lt;th colspan='2' align='center'&gt;&lt;em&gt;Attributes&lt;/em&gt;&lt;/th&gt;&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_SETOR&lt;/th&gt;
+&lt;td&gt;150130305000044&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;SITUACAO&lt;/th&gt;
+&lt;td&gt;Urbana&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_SIT&lt;/th&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_TIPO&lt;/th&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;AREA_KM2&lt;/th&gt;
+&lt;td&gt;4.977796837075423&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_REGIAO&lt;/th&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_REGIAO&lt;/th&gt;
+&lt;td&gt;Norte&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_UF&lt;/th&gt;
+&lt;td&gt;15&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_UF&lt;/th&gt;
+&lt;td&gt;Pará&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_MUN&lt;/th&gt;
+&lt;td&gt;1501303&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_MUN&lt;/th&gt;
+&lt;td&gt;Barcarena&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_DIST&lt;/th&gt;
+&lt;td&gt;150130305&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_DIST&lt;/th&gt;
+&lt;td&gt;Barcarena&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_SUBDIST&lt;/th&gt;
+&lt;td&gt;15013030500&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_RGINT&lt;/th&gt;
+&lt;td&gt;1501&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_RGINT&lt;/th&gt;
+&lt;td&gt;Belém&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_RGI&lt;/th&gt;
+&lt;td&gt;150001&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_RGI&lt;/th&gt;
+&lt;td&gt;Belém&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;&lt;/center&gt;</description>
+				<styleUrl>#__managed_style_0D874EA56C3A11E5FE69</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#__managed_schema">
+						<SimpleData name="COL56EF94E0738D3E66">150130305000044</SimpleData>
+						<SimpleData name="COL56EF9556323B3760">Urbana</SimpleData>
+						<SimpleData name="COL56EF9556325274AE">2</SimpleData>
+						<SimpleData name="COL56EF955632B780A0">0</SimpleData>
+						<SimpleData name="COL56EF955632DBBBFF">4.9777968370754229</SimpleData>
+						<SimpleData name="COL56EF95563231A461">1</SimpleData>
+						<SimpleData name="COL56EF955633282657">Norte</SimpleData>
+						<SimpleData name="COL56EF955633678914">15</SimpleData>
+						<SimpleData name="COL56EF9556336D9135">Pará</SimpleData>
+						<SimpleData name="COL56EF955633D0C38E">1501303</SimpleData>
+						<SimpleData name="COL56EF955633627DA9">Barcarena</SimpleData>
+						<SimpleData name="COL56EF9556335027C0">150130305</SimpleData>
+						<SimpleData name="COL56EF955633F60899">Barcarena</SimpleData>
+						<SimpleData name="COL56EF95563364643D">15013030500</SimpleData>
+						<SimpleData name="COL56EF955633B6C0E2">1501</SimpleData>
+						<SimpleData name="COL56EF955633C6B5E8">Belém</SimpleData>
+						<SimpleData name="COL56EF9556332D321E">150001</SimpleData>
+						<SimpleData name="COL56EF95563339AE58">Belém</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Polygon>
+					<outerBoundaryIs>
+						<LinearRing>
+							<coordinates>
+								-48.629654,-1.50632389997153,0 -48.63593869999989,-1.50588729997154,0 -48.6366920999999,-1.50768749997156,0 -48.63986799999999,-1.51205209997145,0 -48.6411704999999,-1.5146974999714,0 -48.6417398999999,-1.51656939997139,0 -48.64174189999989,-1.51792009997136,0 -48.6417420999999,-1.51804859997132,0 -48.6417413999999,-1.51811939997132,0 -48.6417367,-1.51860009997133,0 -48.6411237999999,-1.5206283999713,0 -48.6401918,-1.52222449997124,0 -48.6395348999999,-1.52374779997125,0 -48.6398528,-1.52561099997121,0 -48.6406398,-1.52744769997113,0 -48.6416121999999,-1.52875719997116,0 -48.6431608999999,-1.52956379997112,0 -48.6452323,-1.53009699997112,0 -48.64599550000001,-1.53002329997109,0 -48.6470903,-1.53096649997112,0 -48.6479879,-1.53222679997105,0 -48.64815089999999,-1.53359369997102,0 -48.6484814,-1.53597429997101,0 -48.6486302,-1.53716769997097,0 -48.6480773,-1.537312699971,0 -48.6477876,-1.53738869997097,0 -48.6471913,-1.53750979997097,0 -48.6467082,-1.53759979997097,0 -48.6445252999999,-1.53767729997094,0 -48.63984720000001,-1.53778889997097,0 -48.6382043,-1.53786319997096,0 -48.63783049999989,-1.53784859997098,0 -48.6374122,-1.53774389997097,0 -48.6371197,-1.53757719997095,0 -48.63706690000001,-1.53754259997096,0 -48.632999,-1.53493339997101,0 -48.63160019999999,-1.53399449997103,0 -48.6313931,-1.53385719997103,0 -48.6313087,-1.53380119997106,0 -48.6255103,-1.5300498999711,0 -48.6249627,-1.52975879997113,0 -48.6269574999999,-1.52815909997112,0 -48.6267443,-1.52768759997118,0 -48.6277407,-1.52722999997119,0 -48.6275193,-1.52682559997116,0 -48.62946409999991,-1.5257337999712,0 -48.6281132999999,-1.52434659997121,0 -48.6280179999999,-1.52440639997124,0 -48.62797119999991,-1.5244357999712,0 -48.6276756,-1.52462129997124,0 -48.62740320000001,-1.5247239999712,0 -48.62719859999999,-1.52480109997119,0 -48.6269202,-1.52500199997123,0 -48.626498,-1.52532359997123,0 -48.62641589999999,-1.52523029997123,0 -48.6262892999999,-1.52516989997123,0 -48.6257644,-1.52507749997121,0 -48.6253384999999,-1.52489169997121,0 -48.6251852999999,-1.52476439997118,0 -48.6248934,-1.5244104999712,0 -48.6248393,-1.52428489997121,0 -48.6252739999999,-1.52400449997121,0 -48.6276812999999,-1.52245809997124,0 -48.6300379999999,-1.52097489997127,0 -48.63116000000001,-1.52026869997132,0 -48.63157,-1.52001069997129,0 -48.63161619999989,-1.51987869997129,0 -48.6315766,-1.51972689997132,0 -48.6300952,-1.51775369997135,0 -48.6290476999999,-1.51635839997136,0 -48.6290795999999,-1.51632549997136,0 -48.6291113999999,-1.51629249997138,0 -48.62917509999991,-1.51622649997138,0 -48.6292647999999,-1.51608939997137,0 -48.62931749999999,-1.51586269997138,0 -48.62931749999999,-1.5156465999714,0 -48.6292488999999,-1.51546209997141,0 -48.6291275999999,-1.5153143999714,0 -48.6289747,-1.51520369997141,0 -48.6287703,-1.51496249997141,0 -48.628686,-1.5147462999714,0 -48.6286648999999,-1.51455119997142,0 -48.6287280999999,-1.51427179997142,0 -48.628686,-1.51392389997142,0 -48.62853569999999,-1.51364229997143,0 -48.6283098,-1.51298679997145,0 -48.6282411999999,-1.51251759997146,0 -48.6283203,-1.51212739997144,0 -48.62887779999989,-1.51053499997148,0 -48.6289464,-1.50999199997149,0 -48.6288996,-1.5095146999715,0 -48.6289293999999,-1.50773189997153,0 -48.629048,-1.50735489997153,0 -48.6291667,-1.50697799997154,0 -48.629654,-1.50632389997153,0 
+							</coordinates>
+						</LinearRing>
+					</outerBoundaryIs>
+				</Polygon>
+			</Placemark>
+</Document>
+</kml>
