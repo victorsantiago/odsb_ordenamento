@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+<Placemark xmlns="http://www.opengis.net/kml/2.2" id="56EF95546100007D">
+				<name>150130305000185</name>
+				<description>&lt;center&gt;&lt;table&gt;&lt;tr&gt;&lt;th colspan='2' align='center'&gt;&lt;em&gt;Attributes&lt;/em&gt;&lt;/th&gt;&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_SETOR&lt;/th&gt;
+&lt;td&gt;150130305000185&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;SITUACAO&lt;/th&gt;
+&lt;td&gt;Rural&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_SIT&lt;/th&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_TIPO&lt;/th&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;AREA_KM2&lt;/th&gt;
+&lt;td&gt;2.527390940344014&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_REGIAO&lt;/th&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_REGIAO&lt;/th&gt;
+&lt;td&gt;Norte&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_UF&lt;/th&gt;
+&lt;td&gt;15&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_UF&lt;/th&gt;
+&lt;td&gt;Pará&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_MUN&lt;/th&gt;
+&lt;td&gt;1501303&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_MUN&lt;/th&gt;
+&lt;td&gt;Barcarena&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_DIST&lt;/th&gt;
+&lt;td&gt;150130305&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;NM_DIST&lt;/th&gt;
+&lt;td&gt;Barcarena&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;CD_SUBDIST&lt;/th&gt;
+&lt;td&gt;15013030500&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_AGLOM&lt;/th&gt;
+&lt;td&gt;150130300061&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_AGLOM&lt;/th&gt;
+&lt;td&gt;São Felipe&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_RGINT&lt;/th&gt;
+&lt;td&gt;1501&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_RGINT&lt;/th&gt;
+&lt;td&gt;Belém&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor="#E3E3F3"&gt;
+&lt;th&gt;CD_RGI&lt;/th&gt;
+&lt;td&gt;150001&lt;/td&gt;
+&lt;/tr&gt;&lt;tr bgcolor=""&gt;
+&lt;th&gt;NM_RGI&lt;/th&gt;
+&lt;td&gt;Belém&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;&lt;/center&gt;</description>
+				<styleUrl>#__managed_style_0D874EA56C3A11E5FE69</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#__managed_schema">
+						<SimpleData name="COL56EF94E0738D3E66">150130305000185</SimpleData>
+						<SimpleData name="COL56EF9556323B3760">Rural</SimpleData>
+						<SimpleData name="COL56EF9556325274AE">5</SimpleData>
+						<SimpleData name="COL56EF955632B780A0">0</SimpleData>
+						<SimpleData name="COL56EF955632DBBBFF">2.5273909403440138</SimpleData>
+						<SimpleData name="COL56EF95563231A461">1</SimpleData>
+						<SimpleData name="COL56EF955633282657">Norte</SimpleData>
+						<SimpleData name="COL56EF955633678914">15</SimpleData>
+						<SimpleData name="COL56EF9556336D9135">Pará</SimpleData>
+						<SimpleData name="COL56EF955633D0C38E">1501303</SimpleData>
+						<SimpleData name="COL56EF955633627DA9">Barcarena</SimpleData>
+						<SimpleData name="COL56EF9556335027C0">150130305</SimpleData>
+						<SimpleData name="COL56EF955633F60899">Barcarena</SimpleData>
+						<SimpleData name="COL56EF95563364643D">15013030500</SimpleData>
+						<SimpleData name="COL56EF9556330A2008">150130300061</SimpleData>
+						<SimpleData name="COL56EF9556334EA05C">São Felipe</SimpleData>
+						<SimpleData name="COL56EF955633B6C0E2">1501</SimpleData>
+						<SimpleData name="COL56EF955633C6B5E8">Belém</SimpleData>
+						<SimpleData name="COL56EF9556332D321E">150001</SimpleData>
+						<SimpleData name="COL56EF95563339AE58">Belém</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Polygon>
+					<outerBoundaryIs>
+						<LinearRing>
+							<coordinates>
+								-48.55790729999999,-1.60387329996975,0 -48.5585592999999,-1.6039324999697,0 -48.55929710000001,-1.60377919996974,0 -48.5592071999999,-1.60433109996973,0 -48.55932680000001,-1.60495629996972,0 -48.5591320999999,-1.60548289996971,0 -48.55834200000001,-1.60554299996969,0 -48.5579547999999,-1.60552729996969,0 -48.5573072999999,-1.60563519996968,0 -48.5564505,-1.6058117999697,0 -48.55578009999989,-1.60616829996971,0 -48.5554629,-1.6062271999697,0 -48.55501819999989,-1.60625329996966,0 -48.55426279999989,-1.60640049996967,0 -48.55323379999991,-1.6066685999697,0 -48.5507964,-1.60705669996964,0 -48.5490174,-1.60720489996965,0 -48.54775399999991,-1.60735099996964,0 -48.5465473,-1.60750799996964,0 -48.5461516,-1.60759629996965,0 -48.5457656999999,-1.60762899996967,0 -48.5452098,-1.60772709996967,0 -48.5432106,-1.60784809996965,0 -48.5429839,-1.60726379996965,0 -48.5429402999999,-1.60674929996965,0 -48.5429141,-1.60544989996968,0 -48.5430711,-1.60387149996974,0 -48.5429316,-1.60307909996973,0 -48.542925,-1.60268009996972,0 -48.54306019999999,-1.60219829996974,0 -48.5430575,-1.60180259996974,0 -48.5431991999999,-1.60120309996979,0 -48.5434036,-1.60011839996977,0 -48.5434908,-1.59919919996979,0 -48.5435368,-1.59906229996982,0 -48.5437838999999,-1.59862259996981,0 -48.5438238,-1.59846279996981,0 -48.5438710999999,-1.59808849996984,0 -48.5437948,-1.59750709996986,0 -48.5439583,-1.59678769996984,0 -48.5441671,-1.59629559996988,0 -48.5382006999999,-1.59297739996991,0 -48.5366400999999,-1.59198909996997,0 -48.5351639,-1.59080069996995,0 -48.53814789999999,-1.58958529996999,0 -48.5384079,-1.58917799996999,0 -48.5392398,-1.58914339997,0 -48.5390578,-1.58858869997,0 -48.5395690999999,-1.58795609997,0 -48.53976299999991,-1.58753799997002,0 -48.5400328,-1.58613189997005,0 -48.55509080000001,-1.59840049996984,0 -48.55377870000001,-1.60035709996978,0 -48.5531573,-1.60120739996979,0 -48.55790729999999,-1.60387329996975,0 
+							</coordinates>
+						</LinearRing>
+					</outerBoundaryIs>
+				</Polygon>
+			</Placemark>
+</Document>
+</kml>
