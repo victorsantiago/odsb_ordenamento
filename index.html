@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Setores Censitários – Distritos & Bairros</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root{--bg:#fff;--panel:#f5f7fb;--text:#0b1020;--muted:#5b6b82;--border:#e9eef7;}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
+    .app{display:grid;grid-template-rows:auto 1fr;height:100%}
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:10px 14px;background:var(--panel);box-shadow:0 2px 12px rgba(0,0,0,.08);position:sticky;top:0;z-index:1000}
+    header h1{font-size:18px;margin:0}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+    .badge{display:flex;gap:8px;align-items:center;background:#eef2f9;padding:6px 10px;border-radius:12px}
+    select{padding:6px 10px;border:1px solid #dbe3f0;border-radius:8px;background:#fff;color:#0b1020}
+    #map{height:100%}
+    .legend{position:absolute;right:10px;bottom:10px;background:#fff;padding:10px 12px;border:1px solid var(--border);border-radius:10px;z-index:600;max-width:300px}
+    .legend h4{margin:0 0 6px;font-size:13px}
+    .legend .row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+    .sw{width:14px;height:14px;border-radius:3px;border:1px solid #cbd5e1}
+    .busy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:700}
+    .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+    .leaflet-popup-content{margin:12px 16px}
+    table.min{border-collapse:collapse;width:100%;font-size:12px}
+    table.min td{padding:3px 6px;border-bottom:1px solid #eee;vertical-align:top}
+    .hint{margin-left:auto;color:#6b7280;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Setores Censitários</h1>
+      <div class="controls">
+        <label class="badge">Distrito:
+          <select id="selDistrito"></select>
+        </label>
+        <label class="badge">Bairro:
+          <select id="selBairro"></select>
+        </label>
+        <span id="status" class="hint"></span>
+      </div>
+    </header>
+    <div id="map"></div>
+  </div>
+
+  <div id="legend" class="legend" style="display:none">
+    <h4>Legenda – Bairros</h4>
+    <div id="legendItems"></div>
+  </div>
+
+  <div id="busy" class="busy">Carregando…</div>
+
+  <script>
+    /* ======= CONFIG ======= */
+    const CSV_PATH = 'dados_setores.csv'; // ajuste se necessário
+    const KML_BASE = 'distritos/kml/';                  // pasta dos KMLs (ex.: 'setores/')
+    const KML_SUFFIX = 'P';               // sufixo do arquivo (ex.: 150... + 'P.kml')
+
+    // ======= MAPA =======
+    const map = L.map('map').setView([-1.45, -48.49], 11); // ajuste posição/zoom
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom: 19, attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    const busy = on => document.getElementById('busy').style.display = on ? 'block' : 'none';
+
+    // ======= UTIL =======
+    const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    function colorFor(key){
+      // hash -> hsl
+      let h=0; const s=65, l=52;
+      const str = String(key);
+      for (let i=0;i<str.length;i++) h = (h*31 + str.charCodeAt(i)) % 360;
+      return `hsl(${h}, ${s}%, ${l}%)`;
+    }
+    function filenameFromSetor(cod){
+      return `${cod}${KML_SUFFIX}.kml`;
+    }
+
+    // ======= DADOS =======
+    // Estrutura:
+    // setores: { cod -> { distrito, bairro, ...outras colunas } }
+    // porDistrito: { distrito -> { bairros:Set([...]), setores:Array[cod] } }
+    let setores = {};
+    let porDistrito = {};
+
+    function buildIndex(rows){
+      setores = {};
+      porDistrito = {};
+      for (const r of rows){
+        const cod = String(r.Cod_setor ?? r.cod_setor ?? r.COD_SETOR ?? r.setor ?? r.Setor ?? '').trim();
+        if (!cod) continue;
+        const distrito = String(r.Distrito ?? r.distrito ?? r.DISTRITO ?? '').trim();
+        const bairro   = String(r.Bairro ?? r.bairro ?? r.BAIRRO ?? '').trim();
+
+        const rec = Object.assign({}, r, {Cod_setor: cod, Distrito: distrito, Bairro: bairro});
+        setores[cod] = rec;
+
+        (porDistrito[distrito] ||= {bairros:new Set(), setores:[]});
+        porDistrito[distrito].bairros.add(bairro || '(sem bairro)');
+        porDistrito[distrito].setores.push(cod);
+      }
+      // popular selects
+      const selDistrito = document.getElementById('selDistrito');
+      selDistrito.innerHTML = '';
+      const distritos = Object.keys(porDistrito).sort((a,b)=>a.localeCompare(b, 'pt-BR'));
+      selDistrito.insertAdjacentHTML('beforeend', `<option value="">— Selecione —</option>`);
+      distritos.forEach(d=> selDistrito.insertAdjacentHTML('beforeend', `<option value="${d}">${d}</option>`));
+
+      const selBairro = document.getElementById('selBairro');
+      selDistrito.addEventListener('change', ()=>{
+        fillBairros(selDistrito.value);
+        refreshLayers();
+      });
+      selBairro.addEventListener('change', refreshLayers);
+
+      fillBairros(''); // inicial
+      document.getElementById('status').textContent = `${Object.keys(setores).length} setores no CSV`;
+    }
+
+    function fillBairros(distrito){
+      const selBairro = document.getElementById('selBairro');
+      selBairro.innerHTML = '';
+      if (!distrito || !porDistrito[distrito]){
+        selBairro.insertAdjacentHTML('beforeend', `<option value="">—</option>`);
+        return;
+      }
+      selBairro.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
+      [...porDistrito[distrito].bairros].sort((a,b)=>a.localeCompare(b,'pt-BR'))
+        .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+    }
+
+    function loadCsv(){
+      return new Promise(resolve=>{
+        Papa.parse(CSV_PATH, {
+          header:true, download:true, dynamicTyping:false,
+          complete: res => { buildIndex(res.data || []); resolve(); },
+          error: () => resolve()
+        });
+      });
+    }
+
+    // ======= CAMADAS =======
+    const activeLayers = []; // lista de grupos
+    function clearLayers(){
+      activeLayers.forEach(g=>{ if (map.hasLayer(g)) map.removeLayer(g); });
+      activeLayers.length = 0;
+    }
+
+    function popupHtml(rec){
+      let html = `<div><b>Setor ${rec.Cod_setor}</b></div>`;
+      html += `<div style="margin:6px 0 8px 0;"><small>${rec.Distrito} — ${rec.Bairro}</small></div>`;
+
+      // tabela com todas as demais colunas do CSV
+      const skip = new Set(['Cod_setor','Distrito','Bairro']);
+      html += `<table class="min">`;
+      Object.keys(rec).forEach(k=>{
+        if (skip.has(k)) return;
+        const label = k.replace(/_/g,' ');
+        const v = rec[k];
+        if (v!==undefined && v!=='') {
+          html += `<tr><td>${label}</td><td style="text-align:right">${v}</td></tr>`;
+        }
+      });
+      html += `</table>`;
+      return html;
+    }
+
+    async function refreshLayers(){
+      busy(true);
+      clearLayers();
+      const distrito = document.getElementById('selDistrito').value;
+      const bairroSel = document.getElementById('selBairro').value;
+
+      if (!distrito || !porDistrito[distrito]){ busy(false); updateLegend([]); return; }
+
+      const setoresDistrito = porDistrito[distrito].setores;
+
+      // Definir subconjunto por bairro
+      let setoresFiltro = [];
+      let colorByBairro = {};
+      let bairrosUsados = new Set();
+
+      if (bairroSel === '__TODOS__'){
+        // todos os bairros -> cores por bairro
+        setoresFiltro = setoresDistrito;
+        // coletar bairros presentes e atribuir cores
+        bairrosUsados = new Set(setoresFiltro.map(c=> setores[c].Bairro || '(sem bairro)'));
+        [...bairrosUsados].forEach(b=> colorByBairro[b] = colorFor(`${distrito}|${b}`));
+      } else {
+        // bairro específico
+        setoresFiltro = setoresDistrito.filter(c=> (setores[c].Bairro || '') === bairroSel);
+        const color = colorFor(`${distrito}|${bairroSel}`);
+        bairrosUsados = new Set([bairroSel]);
+        colorByBairro[bairroSel] = color;
+      }
+
+      // Carregar KMLs dos setores filtrados
+      const groups = [];
+      for (const cod of setoresFiltro){
+        const rec = setores[cod];
+        const bairro = rec.Bairro || '(sem bairro)';
+        const color = colorByBairro[bairro];
+        const filename = filenameFromSetor(cod);
+        const tryUrls = [encodeURI(KML_BASE+filename), encodeURI(KML_BASE+`${cod}.kml`)]; // tenta sem sufixo também
+
+        // cria um grupo por setor (para facilitar remoção)
+        const group = L.layerGroup();
+        groups.push(group);
+        activeLayers.push(group);
+
+        // função para carregar com fallback de arquivo
+        const loadWithFallback = (i=0)=>{
+          if (i>=tryUrls.length){
+            console.warn('KML não encontrado para setor', cod);
+            return;
+          }
+          const url = tryUrls[i];
+          const k = omnivore.kml(url);
+          k.on('ready', ()=>{
+            k.eachLayer(lyr=>{
+              if (lyr.setStyle){
+                lyr.setStyle({ color, weight: 1.1, opacity: 0.9, fillColor: color, fillOpacity: 0.25 });
+              }
+              lyr.on('click', (e)=>{
+                L.popup().setLatLng(e.latlng).setContent(popupHtml(rec)).openOn(map);
+              });
+              group.addLayer(lyr);
+            });
+            map.addLayer(group);
+          });
+          k.on('error', ()=> loadWithFallback(i+1));
+        };
+        loadWithFallback();
+      }
+
+      // Ajusta legenda
+      updateLegend([...bairrosUsados].map(b=>({label:b, color:colorByBairro[b]})));
+
+      // Ajusta bounds quando terminar de carregar (tempo pequeno)
+      setTimeout(()=>{
+        try{
+          const all = [];
+          activeLayers.forEach(g=> g.eachLayer && g.eachLayer(l=> all.push(l)));
+          if (all.length){
+            const fg = L.featureGroup(all);
+            map.fitBounds(fg.getBounds(), {padding:[20,20]});
+          }
+        }catch(e){}
+        busy(false);
+      }, 800);
+    }
+
+    function updateLegend(items){
+      const wrap = document.getElementById('legend');
+      const list = document.getElementById('legendItems');
+      if (!items || items.length===0){ wrap.style.display='none'; list.innerHTML=''; return; }
+      wrap.style.display = 'block';
+      list.innerHTML = items.map(it=>`<div class="row"><span class="sw" style="background:${it.color}"></span><span>${it.label}</span></div>`).join('');
+    }
+
+    (async function init(){
+      await loadCsv();
+      // opcional: selecione automaticamente o primeiro distrito
+      const selDistrito = document.getElementById('selDistrito');
+      if (selDistrito.options.length>1){
+        selDistrito.selectedIndex = 1;
+        fillBairros(selDistrito.value);
+        refreshLayers();
+      }
+    })();
+  </script>
+</body>
+</html>
