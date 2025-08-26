@@ -40,9 +40,9 @@ setor,Distrito,Bairro,SITUACAO
 150130305000064,Sede,Bairro da sede,Urbana
 150130305000065,Murucupi,,Urbana
 150130305000067,Murucupi,,Urbana
-150130305000071,Ilhas,Rural,Rural
-150130305000073,Ilhas,Rural,Rural
-150130305000074,Ilhas,Rural,Rural
+150130305000071,Ilhas,Sem bairro,Rural
+150130305000073,Ilhas,Sem bairro,Rural
+150130305000074,Ilhas,Sem bairro,Rural
 150130305000075,Murucupi,Expansão Vila dos Cabanos,Urbana
 150130305000076,Murucupi,,Urbana
 150130305000077,Sede,,Urbana
@@ -51,13 +51,13 @@ setor,Distrito,Bairro,SITUACAO
 150130305000085,Sede,,Rural
 150130305000087,Estrada,,Rural
 150130305000090,Murucupi,,Urbana
-150130305000092,Ilhas,,Rural
+150130305000092,Ilhas,Sem bairro,Rural
 150130305000093,Murucupi,,Urbana
 150130305000094,Murucupi,,Urbana
 150130305000095,Murucupi,,Urbana
 150130305000097,Murucupi,,Urbana
 150130305000098,Murucupi,,Urbana
-150130305000099,Ilhas,,Rural
+150130305000099,Ilhas,Sem bairro,Rural
 150130305000100,Sede,,Urbana
 150130305000101,Sede,,Urbana
 150130305000102,Sede,,Urbana
@@ -78,7 +78,7 @@ setor,Distrito,Bairro,SITUACAO
 150130305000123,Murucupi,,Urbana
 150130305000124,Vila do Conde,,Urbana
 150130305000125,Vila do Conde,,Urbana
-150130305000127,Ilhas,,Rural
+150130305000127,Ilhas,Sem bairro,Rural
 150130305000129,Sede,,Urbana
 150130305000130,Sede,,Urbana
 150130305000131,Sede,,Urbana
@@ -152,8 +152,8 @@ setor,Distrito,Bairro,SITUACAO
 150130305000213,Murucupi,,Urbana
 150130305000214,Murucupi,,Urbana
 150130305000215,Murucupi,,Urbana
-150130305000216,Ilhas,,Rural
-150130305000217,Ilhas,,Rural
+150130305000216,Ilhas,Sem bairro,Rural
+150130305000217,Ilhas,Sem bairro,Rural
 150130305000218,Murucupi,,Urbana
 150130305000219,Murucupi,,Urbana
 150130305000220,Murucupi,,Urbana
