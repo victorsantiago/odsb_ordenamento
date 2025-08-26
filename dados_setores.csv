@@ -22,8 +22,8 @@ setor,Distrito,Bairro,SITUACAO
 150130305000023,Murucupi,Burajuba,Urbana
 150130305000024,Murucupi,Vila dos Cabanos,Urbana
 150130305000027,Sede,Rural,Rural
-150130305000037,Ilhas,Rural,Rural
-150130305000040,Ilhas,Rural,Rural
+150130305000037,Ilhas,Sem bairro,Rural
+150130305000040,Ilhas,Sem bairro,Rural
 150130305000044,Murucupi,Rural,Urbana
 150130305000045,Ilhas,vila?,Rural
 150130305000048,Murucupi,Pioneiro  V,Urbana
@@ -87,12 +87,12 @@ setor,Distrito,Bairro,SITUACAO
 150130305000134,Sede,,Urbana
 150130305000135,Vila do Conde,,Urbana
 150130305000136,Vila do Conde,,Urbana
-150130305000137,Ilhas,,
-150130305000139,Ilhas,,
-150130305000141,Ilhas,,
-150130305000143,Ilhas,,
-150130305000145,Ilhas,,Rural
-150130305000146,Ilhas,,Rural
+150130305000137,Ilhas,Sem bairro,
+150130305000139,Ilhas,Sem bairro,
+150130305000141,Ilhas,Sem bairro,
+150130305000143,Ilhas,Sem bairro,
+150130305000145,Ilhas,Sem bairro,Rural
+150130305000146,Ilhas,Sem bairro,Rural
 150130305000147,Vila do Conde,,Urbana
 150130305000148,Murucupi,,Urbana
 150130305000151,Vila do Conde,,Urbana
@@ -111,29 +111,29 @@ setor,Distrito,Bairro,SITUACAO
 150130305000168,Murucupi,,Urbana
 150130305000169,Murucupi,,Urbana
 150130305000171,Sede,,Urbana
-150130305000172,Ilhas,,Rural
-150130305000173,Ilhas,,Rural
-150130305000174,Ilhas,,Rural
-150130305000175,Ilhas,,Rural
-150130305000176,Ilhas,,Rural
-150130305000177,Ilhas,,Rural
-150130305000178,Ilhas,,Rural
+150130305000172,Ilhas,Sem bairro,Rural
+150130305000173,Ilhas,Sem bairro,Rural
+150130305000174,Ilhas,Sem bairro,Rural
+150130305000175,Ilhas,Sem bairro,Rural
+150130305000176,Ilhas,Sem bairro,Rural
+150130305000177,Ilhas,Sem bairro,Rural
+150130305000178,Ilhas,Sem bairro,Rural
 150130305000180,Estrada,,Rural
 150130305000182,Murucupi,,Urbana
 150130305000183,Murucupi,,Urbana
 150130305000185,Ilhas,,Rural
 150130305000186,Ilhas,,Rural
-150130305000187,Estrada,,Rural
-150130305000188,Estrada,,Rural
-150130305000189,Estrada,,Rural
-150130305000190,Estrada,,Rural
-150130305000191,Estrada,,Rural
+150130305000187,Estrada,Sem bairro,Rural
+150130305000188,Estrada,Sem bairro,Rural
+150130305000189,Estrada,Sem bairro,Rural
+150130305000190,Estrada,Sem bairro,Rural
+150130305000191,Estrada,Sem bairro,Rural
 150130305000192,Vila do Conde,,Rural
-150130305000193,Estrada,,Rural
-150130305000194,Estrada,,Rural
-150130305000195,Estrada,,Rural
-150130305000196,Estrada,,Rural
-150130305000197,Estrada,,Rural
+150130305000193,Estrada,Sem bairro,Rural
+150130305000194,Estrada,Sem bairro,Rural
+150130305000195,Estrada,Sem bairro,Rural
+150130305000196,Estrada,Sem bairro,Rural
+150130305000197,Estrada,Sem bairro,Rural
 150130305000198,Vila do Conde,,Urbana
 150130305000199,Sede,,Urbana
 150130305000200,Murucupi,,Urbana
@@ -164,21 +164,21 @@ setor,Distrito,Bairro,SITUACAO
 150130305000225,Murucupi,,Urbana
 150130305000226,Murucupi,,Urbana
 150130305000227,Murucupi,,Urbana
-150130305000228,Ilhas,,Rural
-150130305000229,Estrada,,Rural
-150130305000230,Ilhas,,Rural
-150130305000231,Estrada,,Rural
+150130305000228,Ilhas,Sem bairro,Rural
+150130305000229,Estrada,Sem bairro,Rural
+150130305000230,Ilhas,Sem bairro,Rural
+150130305000231,Estrada,Sem bairro,Rural
 150130305000232,Murucupi,,Urbana
 150130305000233,Murucupi,,Urbana
 150130305000234,Murucupi,,Urbana
-150130305000235,Ilhas,,Rural
+150130305000235,Ilhas,Sem bairro,Rural
 150130305000236,Estrada,,Rural
-150130305000237,Ilhas,,Rural
+150130305000237,Ilhas,Sem bairro,Rural
 150130305000238,Murucupi,,Urbana
-150130305000239,Ilhas,,Rural
-150130305000240,Ilhas,,Rural
-150130305000241,Ilhas,,Rural
-150130305000242,Ilhas,,Rural
+150130305000239,Ilhas,Sem bairro,Rural
+150130305000240,Ilhas,Sem bairro,Rural
+150130305000241,Ilhas,Sem bairro,Rural
+150130305000242,Ilhas,Sem bairro,Rural
 150130310000004,Vila do Conde,Bairro de Vila do Conde,
 150130310000005,Vila do Conde,Bairro de Vila do Conde,
 150130310000006,Vila do Conde,Bairro de Vila do Conde,
@@ -266,8 +266,8 @@ setor,Distrito,Bairro,SITUACAO
 150130310000123,Murucupi,,
 150130310000124,Vila do Conde,,
 150130310000125,Vila do Conde,,
-murucupi_dissolved_lines,Murucupi,,
-viladoconde_dissolved_lines,Vila do Conde,,
-barcarena_dissolved_lines,Sede,,
-ilhas_dissolved_lines,Ilhas,,
-estradas_dissolved_lines,Estrada,,
+murucupi_dissolved_lines,Murucupi,Sem bairro,
+viladoconde_dissolved_lines,Vila do Conde,Sem bairro,
+barcarena_dissolved_lines,Sede,Sem bairro,
+ilhas_dissolved_lines,Ilhas,Sem bairro,
+estradas_dissolved_lines,Estrada,Sem bairro,
