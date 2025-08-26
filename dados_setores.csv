@@ -24,7 +24,7 @@ setor,Distrito,Bairro,SITUACAO
 150130305000027,Sede,Rural,Rural
 150130305000037,Ilhas,Sem bairro,Rural
 150130305000040,Ilhas,Sem bairro,Rural
-150130305000044,Murucupi,Rural,Urbana
+150130305000044,Sede,Rural,Urbana
 150130305000045,Ilhas,vila?,Rural
 150130305000048,Murucupi,Pioneiro  V,Urbana
 150130305000049,Murucupi,Expansão Vila dos Cabanos,Urbana
@@ -72,7 +72,7 @@ setor,Distrito,Bairro,SITUACAO
 150130305000113,Sede,,Rural
 150130305000118,Murucupi,,Urbana
 150130305000119,Sede,,Urbana
-150130305000120,Vila do Conde,,Urbana
+150130305000120,Sede,,Urbana
 150130305000121,Sede,,Rural
 150130305000122,Murucupi,,Urbana
 150130305000123,Murucupi,,Urbana
@@ -80,7 +80,7 @@ setor,Distrito,Bairro,SITUACAO
 150130305000125,Vila do Conde,,Urbana
 150130305000127,Ilhas,,Rural
 150130305000129,Sede,,Urbana
-150130305000130,Vila do Conde,,Urbana
+150130305000130,Sede,,Urbana
 150130305000131,Sede,,Urbana
 150130305000132,Sede,,Urbana
 150130305000133,Sede,,Urbana
@@ -129,12 +129,12 @@ setor,Distrito,Bairro,SITUACAO
 150130305000190,Estrada,Sem bairro,Rural
 150130305000191,Estrada,Sem bairro,Rural
 150130305000192,Vila do Conde,,Rural
-150130305000193,Estrada,Sem bairro,Rural
+150130305000193,Vila do Conde,Sem bairro,Rural
 150130305000194,Estrada,Sem bairro,Rural
 150130305000195,Estrada,Sem bairro,Rural
 150130305000196,Estrada,Sem bairro,Rural
 150130305000197,Estrada,Sem bairro,Rural
-150130305000198,Vila do Conde,,Urbana
+150130305000198,Sede,,Urbana
 150130305000199,Sede,,Urbana
 150130305000200,Murucupi,,Urbana
 150130305000201,Murucupi,,Urbana
@@ -165,15 +165,15 @@ setor,Distrito,Bairro,SITUACAO
 150130305000226,Murucupi,,Urbana
 150130305000227,Murucupi,,Urbana
 150130305000228,Ilhas,Sem bairro,Rural
-150130305000229,Estrada,Sem bairro,Rural
+150130305000229,Ilhas,Sem bairro,Rural
 150130305000230,Ilhas,Sem bairro,Rural
-150130305000231,Estrada,Sem bairro,Rural
+150130305000231,Ilhas,Sem bairro,Rural
 150130305000232,Murucupi,,Urbana
 150130305000233,Murucupi,,Urbana
 150130305000234,Murucupi,,Urbana
-150130305000235,Ilhas,Sem bairro,Rural
-150130305000236,Estrada,,Rural
-150130305000237,Ilhas,Sem bairro,Rural
+150130305000235,Sede,Sem bairro,Rural
+150130305000236,Sede,,Rural
+150130305000237,Murucupi,Sem bairro,Rural
 150130305000238,Murucupi,,Urbana
 150130305000239,Ilhas,Sem bairro,Rural
 150130305000240,Ilhas,Sem bairro,Rural
