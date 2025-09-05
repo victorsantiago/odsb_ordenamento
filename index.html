@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Setores Censitários – Distritos & Bairros</title>
+  <title>Ordenamento Territorial – Domicílios/Regiões</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -35,25 +35,38 @@
 <body>
   <div class="app">
     <header>
-      <h1>Setores Censitários</h1>
+      <h1>Domicílios</h1>
       <div class="controls">
 
-<label class="badge">Regiões (KML):
+<label class="badge">Limites por regiões:
   <select id="selKmlRegion">
     <option value="__ALL__">Todos</option>
-    <option value="barcarena">Limites de Barcarena (Sede)</option>
-    <option value="murucupi">Limites de Murucupi</option>
-    <option value="estradas">Limites de Estradas</option>
-    <option value="ilhas">Limites de Ilhas</option>
-    <option value="viladoconde">Limites de Vila do Conde</option>
+    <option value="barcarena">Barcarena (Sede)</option>
+    <option value="murucupi">Murucupi</option>
+    <option value="estradas">Estradas</option>
+    <option value="ilhas">Ilhas</option>
+    <option value="viladoconde">Vila do Conde</option>
   </select>
 </label>
 
-        <label class="badge">Distrito:
+        <label class="badge">Região:
           <select id="selDistrito"></select>
         </label>
         <label class="badge">Bairro:
           <select id="selBairro"></select>
+        </label>
+
+        <label class="badge">Tipo de domicílios:
+          <select id="selTipo">
+            <option value="">— Todos —</option>
+            <option value="1">Área urbana de alta densidade de edificações de cidade ou vila</option>
+            <option value="2">Área urbana de baixa densidade de edificações de cidade ou vila</option>
+            <option value="3">Núcleo urbano</option>
+            <option value="5">Aglomerado rural - Povoado</option>
+            <option value="6">Aglomerado rural - Núcleo rural</option>
+            <option value="7">Aglomerado rural - Lugarejo</option>
+            <option value="8">Área rural (exclusive aglomerados)</option>
+          </select>
         </label>
         <span id="status" class="hint"></span>
       </div>
@@ -94,9 +107,6 @@
     }
 
     // ======= DADOS =======
-    // Estrutura:
-    // setores: { cod -> { distrito, bairro, ...outras colunas } }
-    // porDistrito: { distrito -> { bairros:Set([...]), setores:Array[cod] } }
     let setores = {};
     let porDistrito = {};
 
@@ -120,7 +130,7 @@
       const selDistrito = document.getElementById('selDistrito');
       selDistrito.innerHTML = '';
       const distritos = Object.keys(porDistrito).sort((a,b)=>a.localeCompare(b, 'pt-BR'));
-      selDistrito.insertAdjacentHTML('beforeend', `<option value="">— Selecione —</option>`);
+      selDistrito.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
       distritos.forEach(d=> selDistrito.insertAdjacentHTML('beforeend', `<option value="${d}">${d}</option>`));
 
       const selBairro = document.getElementById('selBairro');
@@ -131,20 +141,46 @@
       selBairro.addEventListener('change', refreshLayers);
 
       fillBairros(''); // inicial
+      const selTipo = document.getElementById('selTipo');
+      if (selTipo){
+        selTipo.addEventListener('change', ()=>{
+          const distrito = document.getElementById('selDistrito').value;
+          const bairroSel = document.getElementById('selBairro').value;
+          applyOpacityByDomicilios(distrito, bairroSel, selTipo.value);
+        });
+      }
+
       document.getElementById('status').textContent = `${Object.keys(setores).length} setores no CSV`;
     }
 
-    function fillBairros(distrito){
-      const selBairro = document.getElementById('selBairro');
-      selBairro.innerHTML = '';
-      if (!distrito || !porDistrito[distrito]){
-        selBairro.insertAdjacentHTML('beforeend', `<option value="">—</option>`);
-        return;
-      }
-      selBairro.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
-      [...porDistrito[distrito].bairros].sort((a,b)=>a.localeCompare(b,'pt-BR'))
-        .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
-    }
+    
+function fillBairros(distrito){
+  const selBairro = document.getElementById('selBairro');
+  selBairro.innerHTML = '';
+
+  // Sempre adiciona "Todos"
+  selBairro.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
+
+  // Caso "Todos os distritos": união de todos os bairros
+  if (distrito === '__TODOS__'){
+    const setAll = new Set();
+    Object.values(porDistrito).forEach(obj => {
+      if (obj && obj.bairros) for (const b of obj.bairros) setAll.add(b || '(sem bairro)');
+    });
+    [...setAll]
+      .sort((a,b)=>a.localeCompare(b,'pt-BR'))
+      .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+    return;
+  }
+
+  // Caso distrito inválido -> mantém só "Todos"
+  if (!distrito || !porDistrito[distrito]) return;
+
+  // Caso distrito específico
+  [...porDistrito[distrito].bairros]
+    .sort((a,b)=>a.localeCompare(b,'pt-BR'))
+    .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+}
 
     function loadCsv(){
       return new Promise(resolve=>{
@@ -163,24 +199,86 @@
       activeLayers.length = 0;
     }
 
-    function popupHtml(rec){
-      let html = `<div><b>Setor ${rec.Cod_setor}</b></div>`;
-      html += `<div style="margin:6px 0 8px 0;"><small>${rec.Distrito} — ${rec.Bairro}</small></div>`;
+    
 
-      // tabela com todas as demais colunas do CSV
-      const skip = new Set(['Cod_setor','Distrito','Bairro']);
-      html += `<table class="min">`;
-      Object.keys(rec).forEach(k=>{
-        if (skip.has(k)) return;
-        const label = k.replace(/_/g,' ');
-        const v = rec[k];
-        if (v!==undefined && v!=='') {
-          html += `<tr><td>${label}</td><td style="text-align:right">${v}</td></tr>`;
-        }
-      });
-      html += `</table>`;
-      return html;
+function popupHtml(rec){
+  let html = `<div><b>Setor ${rec.Cod_setor}</b></div>`;
+  html += `<div style="margin:6px 0 8px 0;"><small>${rec.Distrito} — ${rec.Bairro}</small></div>`;
+  const skip = new Set(['Cod_setor','Distrito','Bairro']);
+  html += `<table class="min">`;
+  Object.keys(rec).forEach(k=>{
+    if (skip.has(k)) return;
+    const label = k.replace(/_/g,' ');
+    const norm = String(k).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+    let v = rec[k];
+    if (norm === 'tipo') {
+      v = mapTipoValue(v);
     }
+    if (v!==undefined && v!=='') {
+      html += `<tr><td>${label}</td><td style="text-align:right">${v}</td></tr>`;
+    }
+  });
+  html += `</table>`;
+  return html;
+}
+
+
+// === Helpers para Tipo e Domicílios ===
+function extractTipoCode(v){
+  if (v === undefined || v === null) return '';
+  const m = String(v).match(/\d+/);
+  return m ? m[0] : String(v).trim();
+}
+function getDomicilios(rec){
+  // tenta várias formas: "Domicílios", "Domicilios", "DOMICILIOS"
+  const v = rec['Domicílios'] ?? rec['Domicilios'] ?? rec['DOMICILIOS'] ?? rec['domicilios'];
+  const n = Number(String(v).replace(/\./g,'').replace(',','.')); // tolera "1.234" ou "1,234"
+  return isNaN(n) ? 0 : n;
+}
+
+// Registro de camadas por setor para permitir mudar opacidade depois
+const sectorLayers = new Map(); // cod -> Array<Layer>
+
+function setSectorOpacity(cod, opacity){
+  const arr = sectorLayers.get(cod) || [];
+  arr.forEach(lyr=> lyr.setStyle && lyr.setStyle({ fillOpacity: opacity }));
+}
+
+function applyOpacityByDomicilios(distrito, bairroSel, tipoCode){
+  // Define setores relevantes (do distrito e do bairro escolhido, se houver)
+  let setoresDistrito = [];
+  if (distrito === '__TODOS__'){
+    setoresDistrito = Object.values(porDistrito).flatMap(obj => obj.setores || []);
+  } else {
+    if (!distrito || !porDistrito[distrito]) return;
+    setoresDistrito = porDistrito[distrito].setores;
+  }
+  if (bairroSel && bairroSel !== '__TODOS__'){
+    setoresDistrito = setoresDistrito.filter(c=> (setores[c].Bairro || '') === bairroSel);
+  }
+  // Se tipo escolhido, filtra "ativos" por tipo
+  let ativos = setoresDistrito;
+  if (tipoCode){
+    ativos = setoresDistrito.filter(c=> extractTipoCode(setores[c]['Tipo']) === String(tipoCode));
+  }
+  // Calcula min/max de Domicílios nos "ativos"
+  const vals = ativos.map(c=> getDomicilios(setores[c])).filter(n=> n>=0);
+  const minV = Math.min(...(vals.length?vals:[0]));
+  const maxV = Math.max(...(vals.length?vals:[1]));
+  // Função de escala para opacidade (0.15 a 0.9)
+  const scale = (x)=>{
+    if (maxV===minV) return 0.6;
+    const t = (x - minV) / (maxV - minV);
+    return 0.15 + t * (0.75);
+  };
+  // Aplica opacidade: setores do tipo selecionado variam por Domicílios; demais ficam baixinhos
+  setoresDistrito.forEach(cod=>{
+    const rec = setores[cod];
+    const matches = !tipoCode || extractTipoCode(rec['Tipo']) === String(tipoCode);
+    const op = matches ? scale(getDomicilios(rec)) : 0.05;
+    setSectorOpacity(cod, op);
+  });
+}
 
     async function refreshLayers(){
       busy(true);
@@ -188,9 +286,9 @@
       const distrito = document.getElementById('selDistrito').value;
       const bairroSel = document.getElementById('selBairro').value;
 
-      if (!distrito || !porDistrito[distrito]){ busy(false); updateLegend([]); return; }
+      if (!distrito || (distrito !== '__TODOS__' && !porDistrito[distrito])){ const st=document.getElementById('status'); if (st) st.textContent='0 setores exibidos'; busy(false); updateLegend([]); return; }
 
-      const setoresDistrito = porDistrito[distrito].setores;
+      const setoresDistrito = (distrito === '__TODOS__') ? Object.values(porDistrito).flatMap(obj => obj.setores || []) : porDistrito[distrito].setores;
 
       // Definir subconjunto por bairro
       let setoresFiltro = [];
@@ -202,15 +300,28 @@
         setoresFiltro = setoresDistrito;
         // coletar bairros presentes e atribuir cores
         bairrosUsados = new Set(setoresFiltro.map(c=> setores[c].Bairro || '(sem bairro)'));
-        [...bairrosUsados].forEach(b=> colorByBairro[b] = colorFor(`${distrito}|${b}`));
+        if (distrito === '__TODOS__'){
+          setoresFiltro.forEach(c=>{
+            const rec = setores[c];
+            const b = rec.Bairro || '(sem bairro)';
+            const key = `${rec.Distrito}|${b}`;
+            if (!colorByBairro[b]) colorByBairro[b] = colorFor(key);
+          });
+        } else {
+          [...bairrosUsados].forEach(b=> colorByBairro[b] = colorFor(`${distrito}|${b}`));
+        }
       } else {
         // bairro específico
         setoresFiltro = setoresDistrito.filter(c=> (setores[c].Bairro || '') === bairroSel);
-        const color = colorFor(`${distrito}|${bairroSel}`);
+        const sampleCod = setoresFiltro[0];
+        const sampleRec = sampleCod ? setores[sampleCod] : null;
+        const color = (distrito === '__TODOS__' && sampleRec) ? colorFor(`${sampleRec.Distrito}|${bairroSel}`) : colorFor(`${distrito}|${bairroSel}`);
         bairrosUsados = new Set([bairroSel]);
         colorByBairro[bairroSel] = color;
       }
 
+      // Atualiza status com a quantidade de setores exibidos
+      try{ const st=document.getElementById('status'); if(st) st.textContent=`${setoresFiltro.length} setores exibidos`; }catch(_){}
       // Carregar KMLs dos setores filtrados
       const groups = [];
       for (const cod of setoresFiltro){
@@ -237,6 +348,9 @@
             k.eachLayer(lyr=>{
               if (lyr.setStyle){
                 lyr.setStyle({ color, weight: 1.1, opacity: 0.9, fillColor: color, fillOpacity: 0.25 });
+                const arr = sectorLayers.get(cod) || [];
+                arr.push(lyr);
+                sectorLayers.set(cod, arr);
               }
               lyr.on('click', (e)=>{
                 L.popup().setLatLng(e.latlng).setContent(popupHtml(rec)).openOn(map);
@@ -250,8 +364,22 @@
         loadWithFallback();
       }
 
-      // Ajusta legenda
-      updateLegend([...bairrosUsados].map(b=>({label:b, color:colorByBairro[b]})));
+      // Ajusta legenda (robusto: não quebra se algo faltar)
+      try{
+        const items = [];
+        if (bairrosUsados && bairrosUsados.size){
+          bairrosUsados.forEach(lbl=>{
+            const cor = (colorByBairro && colorByBairro[lbl]) ? colorByBairro[lbl] : '#888';
+            items.push({ label: lbl, color: cor });
+          });
+        }
+        // Se houver função de regiões (limites), agrega itens por regiões selecionadas
+        if (typeof buildRegionLegendItems === 'function'){
+          const regItems = buildRegionLegendItems() || [];
+          regItems.forEach(it=> items.push(it));
+        }
+        if (typeof updateLegend === 'function') updateLegend(items);
+      }catch(_e){ /* silencia erros de legenda */ }
 
       // Ajusta bounds quando terminar de carregar (tempo pequeno)
       setTimeout(()=>{
@@ -263,6 +391,10 @@
             map.fitBounds(fg.getBounds(), {padding:[20,20]});
           }
         }catch(e){}
+
+        const selTipo = document.getElementById('selTipo');
+        applyOpacityByDomicilios(distrito, bairroSel, selTipo ? selTipo.value : '');
+        try{ const st=document.getElementById('status'); if(st) st.textContent=`${setoresFiltro.length} setores exibidos`; }catch(_){}
         busy(false);
       }, 800);
     }
@@ -278,11 +410,11 @@
 
 // ====== Regiões (KML) via combobox ======
 const REGIONS_KML = [
-  { id: 'barcarena',   name: 'Limites de Barcarena (Sede)', file: 'distritos/kml/barcarena_dissolved_lines.kml',   color: '#7c3aed' },
-  { id: 'murucupi',    name: 'Limites de Murucupi',         file: 'distritos/kml/murucupi_dissolved_lines.kml',    color: '#f59e0b' },
-  { id: 'estradas',    name: 'Limites de Estradas',         file: 'distritos/kml/estradas_dissolved_lines.kml',    color: '#2563eb' },
-  { id: 'ilhas',       name: 'Limites de Ilhas',            file: 'distritos/kml/ilhas_dissolved_lines.kml',       color: '#10b981' },
-  { id: 'viladoconde', name: 'Limites de Vila do Conde',    file: 'distritos/kml/viladoconde_dissolved_lines.kml', color: '#ef4444' },
+  { id: 'barcarena',   name: 'Barcarena (Sede)', file: 'distritos/kml/barcarena_dissolved_lines.kml',   color: '#7c3aed' },
+  { id: 'murucupi',    name: 'Murucupi',         file: 'distritos/kml/murucupi_dissolved_lines.kml',    color: '#f59e0b' },
+  { id: 'estradas',    name: 'Estradas',         file: 'distritos/kml/estradas_dissolved_lines.kml',    color: '#2563eb' },
+  { id: 'ilhas',       name: 'Ilhas',            file: 'distritos/kml/ilhas_dissolved_lines.kml',       color: '#10b981' },
+  { id: 'viladoconde', name: 'Vila do Conde',    file: 'distritos/kml/viladoconde_dissolved_lines.kml', color: '#ef4444' },
 ];
 const regionKmlLayers = new Map(); // id -> L.GeoJSON
 
@@ -350,12 +482,37 @@ function loadRegionsFromSelect(){
       await loadCsv();
       // opcional: selecione automaticamente o primeiro distrito
       const selDistrito = document.getElementById('selDistrito');
-      if (selDistrito.options.length>1){
-        selDistrito.selectedIndex = 1;
+      if (selDistrito.options.length>0){
+        selDistrito.value = '__TODOS__';
         fillBairros(selDistrito.value);
         refreshLayers();
       }
     })();
   </script>
+
+<script>
+
+
+
+function mapTipoValue(v){
+  if (v === undefined || v === null) return '';
+  let raw = String(v).trim();
+  const m = raw.match(/\d+/);
+  const code = m ? m[0] : raw;
+  const dict = {
+    '1': 'Área urbana de alta densidade de edificações de cidade ou vila',
+    '2': 'Área urbana de baixa densidade de edificações de cidade ou vila',
+    '3': 'Núcleo urbano',
+    '5': 'Aglomerado rural - Povoado',
+    '6': 'Aglomerado rural - Núcleo rural',
+    '7': 'Aglomerado rural - Lugarejo',
+    '8': 'Área rural (exclusive aglomerados)',
+    '9': 'Massas de água'
+  };
+  return dict[code] ? dict[code] : raw;
+}
+
+</script>
+
 </body>
 </html>
