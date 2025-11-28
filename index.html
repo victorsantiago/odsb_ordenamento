@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ordenamento Territorial – Domicílios/Regiões</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root{--bg:#fff;--panel:#f5f7fb;--text:#0b1020;--muted:#5b6b82;--border:#e9eef7;}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
+    .app{display:grid;grid-template-rows:auto 1fr;height:100%}
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:10px 14px;background:var(--panel);box-shadow:0 2px 12px rgba(0,0,0,.08);position:sticky;top:0;z-index:1000}
+    header h1{font-size:18px;margin:0}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+    .badge{display:flex;gap:8px;align-items:center;background:#eef2f9;padding:6px 10px;border-radius:12px}
+    select{padding:6px 10px;border:1px solid #dbe3f0;border-radius:8px;background:#fff;color:#0b1020}
+    #map{height:100%}
+    .legend{position:absolute;right:10px;bottom:10px;background:#fff;padding:10px 12px;border:1px solid var(--border);border-radius:10px;z-index:600;max-width:300px}
+    .legend h4{margin:0 0 6px;font-size:13px}
+    .legend .row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+    .sw{width:14px;height:14px;border-radius:3px;border:1px solid #cbd5e1}
+    .busy{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 12px;border-radius:8px;display:none;z-index:700}
+    .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+    .leaflet-popup-content{margin:12px 16px}
+    table.min{border-collapse:collapse;width:100%;font-size:12px}
+    table.min td{padding:3px 6px;border-bottom:1px solid #eee;vertical-align:top}
+    .hint{margin-left:auto;color:#6b7280;font-size:12px}
+
+    .sector-badge-tooltip.leaflet-tooltip{
+      background:#ffffff;
+      border:1px solid #d1d5db;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:11px;
+      font-weight:600;
+      box-shadow:0 1px 4px rgba(0,0,0,.25);
+      color:#111827;
+    }
+    .sector-badge-tooltip.leaflet-tooltip .leaflet-tooltip-arrow{
+      display:none;
+    }
+
+    .recorte-block{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:4px;
+    }
+    .recorte-block-label{
+      font-size:12px;
+      font-weight:600;
+      color:#374151;
+    }
+    .recorte-block select{
+      width:100%;
+      margin:1px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Domicílios</h1>
+      <div class="controls">
+
+        <!-- Distrito unificado -->
+        <label class="badge">Distrito:
+          <select id="selDistrito"></select>
+        </label>
+
+        <label class="badge">Bairro:
+          <select id="selBairro"></select>
+        </label>
+
+        <!-- Recorte geográfico (grupo + detalhe) -->
+        <div class="badge recorte-block">
+          <span class="recorte-block-label">Recorte geográfico</span>
+          <select id="selGrupoIndicador"></select>
+          <select id="selIndicador"></select>
+        </div>
+
+        <span id="status" class="hint"></span>
+      </div>
+    </header>
+    <div id="map"></div>
+  </div>
+
+  <div id="legend" class="legend" style="display:none">
+    <h4 id="legendTitle"></h4>
+    <div id="legendItems"></div>
+  </div>
+
+  <div id="busy" class="busy">Carregando…</div>
+
+  <script>
+    const CSV_PATH = 'dados_setores.csv';
+    const KML_BASE = 'distritos/kml/';
+
+    const map = L.map('map').setView([-1.45, -48.49], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom: 19, attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+    const busy = on => document.getElementById('busy').style.display = on ? 'block' : 'none';
+
+    const norm = s => String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const filenameFromSetor = cod => `${cod}.kml`;
+
+    const DOM_FAIXAS = [
+      { label: 'até 10',       min: 0,   max: 10,   color: '#fde0dd' },
+      { label: '11 a 25',      min: 11,  max: 25,   color: '#fcc5c0' },
+      { label: '26 a 50',      min: 26,  max: 50,   color: '#fa9fb5' },
+      { label: '51 a 100',     min: 51,  max: 100,  color: '#f768a1' },
+      { label: '101 a 250',    min: 101, max: 250,  color: '#dd3497' },
+      { label: '251 a 500',    min: 251, max: 500,  color: '#ae017e' },
+      { label: 'mais de 500',  min: 501, max: Infinity, color: '#7a0177' },
+      { label: 'não há informação', min: null, max: null, color: '#d9d9d9' }
+    ];
+    function colorByDom(n){
+      if (n == null || isNaN(n)) return '#d9d9d9';
+      for (const f of DOM_FAIXAS){
+        if (n >= f.min && n <= f.max) return f.color;
+      }
+      return '#d9d9d9';
+    }
+
+    const PERC_FAIXAS = [
+      { label: '0',        min: 0,          max: 0,         color: '#ffffff' },
+      { label: '1 a 5%',   min: 0.000001,   max: 5,         color: '#ffffbb' },
+      { label: 'até 10%',  min: 5.000001,   max: 10,        color: '#f6cd6f' },
+      { label: 'até 20%',  min: 10.000001,  max: 20,        color: '#ed934f' },
+      { label: 'até 30%',  min: 20.000001,  max: 30,        color: '#dd4c32' },
+      { label: 'até 50%',  min: 30.000001,  max: 50,        color: '#ac232d' },
+      { label: 'até 80%',  min: 50.000001,  max: 80,        color: '#7d1e2a' },
+      { label: '100%',     min: 80.000001,  max: 100.000001,color: '#7d1e2a' },
+      { label: 'sem informação', min: null, max: null,      color: '#cbcbcb' }
+    ];
+    function colorByPerc(p){
+      if (p == null || isNaN(p)) return '#cbcbcb';
+      for (const f of PERC_FAIXAS){
+        if (f.min !== null && p >= f.min && p <= f.max) return f.color;
+      }
+      return '#cbcbcb';
+    }
+
+    const DOM_TIPOS = [
+      { value: '', label: '— Todos —' },
+      { value: '1', label: 'Área urbana de alta densidade de edificações de cidade ou vila' },
+      { value: '2', label: 'Área urbana de baixa densidade de edificações de cidade ou vila' },
+      { value: '3', label: 'Núcleo urbano' },
+      { value: '5', label: 'Aglomerado rural - Povoado' },
+      { value: '6', label: 'Aglomerado rural - Núcleo rural' },
+      { value: '7', label: 'Aglomerado rural - Lugarejo' },
+      { value: '8', label: 'Área rural (exclusive aglomerados)' }
+    ];
+
+    const INDICATOR_GROUPS = {
+      dom: {
+        label: 'Quantidade de domicílios',
+        options: DOM_TIPOS
+      },
+      agua: {
+        label: 'Abastecimento de água',
+        options: [
+          { value: 'rede geral',     label: 'Abastecimento de água pela rede geral' },
+          { value: 'poço profundo',  label: 'Poço profundo' },
+          { value: 'poço raso',      label: 'Poço raso' },
+          { value: 'rios',           label: 'Rios' },
+          { value: 'outra forma',    label: 'Outra forma' }
+        ]
+      },
+      banheiro: {
+        label: 'Banheiro e Destinação de resíduos',
+        options: [
+          { value: 'com banheiro exclusivo',                         label: 'Banheiro de uso exclusivo' },
+          { value: 'sem banheiro',                                   label: 'Sem banheiro' },
+          { value: 'fossa séptica ou fossa filtro não ligada à rede',label: 'Fossa séptica ou fossa filtro não ligada à rede' },
+          { value: 'esgoto por fossa rudimentar ou buraco',          label: 'Esgoto por fossa rudimentar ou buraco' },
+          { value: 'esgoto do banheiro, sanitário ou buraco é vala', label: 'Esgoto do banheiro, sanitário ou buraco é vala' },
+          { value: 'rio, lago, córrego ou mar',                      label: 'Rio, lago, córrego ou mar' },
+          { value: 'outra forma',                                    label: 'Outra forma' }
+        ]
+      },
+      lixo: {
+        label: 'Destinação no lixo',
+        options: [
+          { value: 'coletado',                 label: 'Coleta de lixo' },
+          { value: 'depositado em caçamba',    label: 'Depositado em caçamba' },
+          { value: 'queimado',                 label: 'Queimado' },
+          { value: 'enterrado',                label: 'Enterrado' },
+          { value: 'jogado em terreno baldio', label: 'Jogado em terreno baldio' },
+          { value: 'outro destino',            label: 'Outro destino' }
+        ]
+      }
+    };
+
+    let setores = {};
+    let porDistrito = {};
+    const sectorLayers = new Map();
+    const activeLayers = [];
+
+    function buildIndex(rows){
+      setores = {};
+      porDistrito = {};
+      for (const r of rows){
+        const cod = String(r.setor ?? r.Cod_setor ?? r.cod_setor ?? r.COD_SETOR ?? '').trim();
+        if (!cod) continue;
+        const distrito = String(r.Distrito ?? r.distrito ?? r.DISTRITO ?? '').trim();
+        const bairro   = String(r.bairro ?? r.Bairro ?? r.BAIRRO ?? '').trim();
+
+        const rec = Object.assign({}, r, {Cod_setor: cod, Distrito: distrito, Bairro: bairro});
+        setores[cod] = rec;
+
+        (porDistrito[distrito] ||= {bairros:new Set(), setores:[]});
+        porDistrito[distrito].bairros.add(bairro || '(sem bairro)');
+        porDistrito[distrito].setores.push(cod);
+      }
+
+      const selDistrito = document.getElementById('selDistrito');
+      selDistrito.innerHTML = '';
+      const distritos = Object.keys(porDistrito).sort((a,b)=>a.localeCompare(b, 'pt-BR'));
+      selDistrito.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
+      distritos.forEach(d=> selDistrito.insertAdjacentHTML('beforeend', `<option value="${d}">${d}</option>`));
+
+      const selBairro = document.getElementById('selBairro');
+      selDistrito.addEventListener('change', ()=>{
+        const v = selDistrito.value;
+        fillBairros(v);
+        loadRegionsForDistrito(v);
+        refreshLayers();
+      });
+      selBairro.addEventListener('change', refreshLayers);
+
+      fillBairros('');
+      setupIndicatorCombos();
+
+      document.getElementById('status').textContent = `${Object.keys(setores).length} setores no CSV`;
+    }
+
+    function setupIndicatorCombos(){
+      const selGrupo = document.getElementById('selGrupoIndicador');
+      const selInd   = document.getElementById('selIndicador');
+      if (!selGrupo || !selInd) return;
+
+      selGrupo.innerHTML = '';
+      Object.entries(INDICATOR_GROUPS).forEach(([key, cfg])=>{
+        selGrupo.insertAdjacentHTML('beforeend', `<option value="${key}">${cfg.label}</option>`);
+      });
+
+      function fillDetalhe(){
+        const grp = selGrupo.value || 'dom';
+        const cfg = INDICATOR_GROUPS[grp];
+        selInd.innerHTML = '';
+        cfg.options.forEach(o=>{
+          selInd.insertAdjacentHTML('beforeend', `<option value="${o.value}">${o.label}</option>`);
+        });
+      }
+
+      fillDetalhe();
+
+      selGrupo.addEventListener('change', ()=>{
+        fillDetalhe();
+        refreshLayers();
+      });
+      selInd.addEventListener('change', refreshLayers);
+    }
+
+    function fillBairros(distrito){
+      const selBairro = document.getElementById('selBairro');
+      selBairro.innerHTML = '';
+      selBairro.insertAdjacentHTML('beforeend', `<option value="__TODOS__">Todos</option>`);
+
+      if (distrito === '__TODOS__'){
+        const setAll = new Set();
+        Object.values(porDistrito).forEach(obj => {
+          if (obj && obj.bairros) for (const b of obj.bairros) setAll.add(b || '(sem bairro)');
+        });
+        [...setAll]
+          .sort((a,b)=>a.localeCompare(b,'pt-BR'))
+          .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+        return;
+      }
+
+      if (!distrito || !porDistrito[distrito]) return;
+
+      [...porDistrito[distrito].bairros]
+        .sort((a,b)=>a.localeCompare(b,'pt-BR'))
+        .forEach(b=> selBairro.insertAdjacentHTML('beforeend', `<option value="${b}">${b}</option>`));
+    }
+
+    function loadCsv(){
+      return new Promise(resolve=>{
+        Papa.parse(CSV_PATH, {
+          header:true,
+          download:true,
+          dynamicTyping:false,
+          delimiter:';',
+          skipEmptyLines:true,
+          complete: res => { buildIndex(res.data || []); resolve(); },
+          error: () => resolve()
+        });
+      });
+    }
+
+    // -------- Popup customizada por modo --------
+    function popupHtml(rec, highlight){
+      const mode = highlight?.mode || 'dom';
+
+      let html = `<div><b>Setor censitário: ${rec.Cod_setor}</b></div>`;
+      html += `<div style="margin:4px 0 6px 0;"><small>${rec.Distrito} — ${rec.Bairro}</small></div>`;
+
+      // Card amarelo
+      if (highlight){
+        const label = highlight.label || '';
+        let valStr = '—';
+        let title;
+
+        if (mode === 'dom') {
+          if (highlight.value != null && !isNaN(highlight.value)){
+            valStr = Number(highlight.value).toLocaleString('pt-BR');
+          }
+          title = 'Quantidade de domicílios';
+        } else {
+          if (highlight.value != null && !isNaN(highlight.value)){
+            valStr = highlight.value.toFixed(1).toString().replace('.',',') + '%';
+          }
+          if (mode === 'agua')      title = 'Abastecimento de água';
+          else if (mode === 'banheiro') title = 'Banheiro e Destinação de resíduos';
+          else                        title = 'Destinação do lixo';
+        }
+
+        html += `
+          <div style="margin:4px 0 10px 0;padding:8px 10px;border-radius:9px;
+                      background:#fef3c7;border:1px solid #facc15;font-size:12px;">
+            <div><b>${title}</b></div>
+            <div>${label}: <b>${valStr}</b></div>
+          </div>
+        `;
+      }
+
+      const tipoRaw = rec['Tipo'] ?? rec['tipo'];
+      const tipoFmt = tipoRaw ? mapTipoValue(tipoRaw) : '';
+
+      function row(label, value){
+        if (value === undefined || value === null || value === '') return '';
+        return `<tr><td>${label}</td><td style="text-align:right">${value}</td></tr>`;
+      }
+
+      const domVal = getDomicilios(rec);
+      const vRedeGeral       = rec['rede geral'];
+      const vPocoProfundo    = rec['poço profundo'];
+      const vPocoRaso        = rec['poço raso'];
+      const vRios            = rec['rios'];
+      const vOutraFormaAgua  = rec['outra forma'];
+
+      const vBanheiroExcl    = rec['com banheiro exclusivo'];
+      const vSemBanheiro     = rec['sem banheiro'];
+      const vFossaSeptica    = rec['fossa séptica ou fossa filtro não ligada à rede'];
+      const vEsgotoFossa     = rec['esgoto por fossa rudimentar ou buraco'];
+      const vEsgotoVala      = rec['esgoto do banheiro, sanitário ou buraco é vala'];
+      const vRioLago         = rec['rio, lago, córrego ou mar'];
+      const vOutraFormaBanho = rec['outra forma 1'] ?? rec['outra forma'];
+
+      const vColetado        = rec['coletado'];
+      const vCacamba         = rec['depositado em caçamba'];
+      const vQueimado        = rec['queimado'];
+      const vEnterrado       = rec['enterrado'];
+      const vTerrenoBaldio   = rec['jogado em terreno baldio'];
+      const vOutroDestino    = rec['outro destino'];
+
+      html += `<table class="min">`;
+
+      if (mode === 'dom') {
+        html += row('bairro', rec.Bairro || rec.bairro);
+        html += row('Tipo', tipoFmt);
+        html += row('Domicílios', Number(domVal).toLocaleString('pt-BR'));
+        html += row('Abastecimento de água pela rede geral', vRedeGeral);
+        html += row('Banheiro de uso exclusivo', vBanheiroExcl);
+        html += row('Coleta de lixo', vColetado);
+      }
+      else if (mode === 'agua') {
+        html += row('Tipo', tipoFmt);
+        html += row('Domicílios', Number(domVal).toLocaleString('pt-BR'));
+        html += row('Abastecimento de água pela rede geral', vRedeGeral);
+        html += row('Uso de poço profundo', vPocoProfundo);
+        html += row('Uso de poço raso', vPocoRaso);
+        html += row('Rios', vRios);
+        html += row('Outra forma', vOutraFormaAgua);
+      }
+      else if (mode === 'banheiro') {
+        html += row('Tipo', tipoFmt);
+        html += row('Domicílios', Number(domVal).toLocaleString('pt-BR'));
+        html += row('Banheiro de uso exclusivo', vBanheiroExcl);
+        html += row('Sem banheiro', vSemBanheiro);
+        html += row('Fossa séptica ou fossa filtro não ligada à rede', vFossaSeptica);
+        html += row('Esgoto por fossa rudimentar ou buraco', vEsgotoFossa);
+        html += row('Esgoto do banheiro, sanitário ou buraco é vala', vEsgotoVala);
+        html += row('Rio, lago, córrego ou mar', vRioLago);
+        html += row('Outra forma', vOutraFormaBanho);
+      }
+      else if (mode === 'lixo') {
+        html += row('Tipo', tipoFmt);
+        html += row('Domicílios', Number(domVal).toLocaleString('pt-BR'));
+        html += row('Coleta de lixo', vColetado);
+        html += row('Depositado em caçamba', vCacamba);
+        html += row('Queimado', vQueimado);
+        html += row('Enterrado', vEnterrado);
+        html += row('Jogado em terreno baldio', vTerrenoBaldio);
+        html += row('Outro destino', vOutroDestino);
+      }
+
+      html += `</table>`;
+      return html;
+    }
+
+    function extractTipoCode(v){
+      if (v === undefined || v === null) return '';
+      const m = String(v).match(/\d+/);
+      return m ? m[0] : String(v).trim();
+    }
+
+    function getDomicilios(rec){
+      const v = rec['Domicílios'] ?? rec['Domicilios'] ?? rec['DOMICILIOS'] ?? rec['domicilios'];
+      const n = Number(String(v).replace(/\./g,'').replace(',','.'));
+      return isNaN(n) ? 0 : n;
+    }
+
+    function parsePercent(v){
+      if (v === undefined || v === null || v === '') return null;
+      let s = String(v).replace('%','').trim();
+      s = s.replace(',','.');
+      const n = parseFloat(s);
+      return isNaN(n) ? null : n;
+    }
+
+    function getPercent(rec, colName){
+      if (!colName) return null;
+      const v = rec[colName];
+      return parsePercent(v);
+    }
+
+    function setSectorOpacity(cod, opacity){
+      const arr = sectorLayers.get(cod) || [];
+      arr.forEach(lyr=> lyr.setStyle && lyr.setStyle({ fillOpacity: opacity }));
+    }
+
+    function applyOpacityByDomicilios(distrito, bairroSel, tipoCode){
+      let setoresDistrito = [];
+      if (distrito === '__TODOS__'){
+        setoresDistrito = Object.values(porDistrito).flatMap(obj => obj.setores || []);
+      } else {
+        if (!distrito || !porDistrito[distrito]) return;
+        setoresDistrito = porDistrito[distrito].setores;
+      }
+      if (bairroSel && bairroSel !== '__TODOS__'){
+        setoresDistrito = setoresDistrito.filter(c=> (setores[c].Bairro || '') === bairroSel);
+      }
+      let ativos = setoresDistrito;
+      if (tipoCode){
+        ativos = setoresDistrito.filter(c=> extractTipoCode(setores[c]['Tipo']) === String(tipoCode));
+      }
+      const vals = ativos.map(c=> getDomicilios(setores[c])).filter(n=> n>=0);
+      const minV = Math.min(...(vals.length?vals:[0]));
+      const maxV = Math.max(...(vals.length?vals:[1]));
+      const scale = (x)=>{
+        if (maxV===minV) return 0.6;
+        const t = (x - minV) / (maxV - minV);
+        return 0.15 + t * (0.75);
+      };
+      setoresDistrito.forEach(cod=>{
+        const rec = setores[cod];
+        const matches = !tipoCode || extractTipoCode(rec['Tipo']) === String(tipoCode);
+        const op = matches ? scale(getDomicilios(rec)) : 0.05;
+        setSectorOpacity(cod, op);
+      });
+    }
+
+    function clearLayers(){
+      activeLayers.forEach(g=>{ if (map.hasLayer(g)) map.removeLayer(g); });
+      activeLayers.length = 0;
+      sectorLayers.clear();
+    }
+
+    function updateLegend(mode){
+      const wrap = document.getElementById('legend');
+      const list = document.getElementById('legendItems');
+      const titleEl = document.getElementById('legendTitle');
+
+      let items, title;
+      if (mode === 'dom'){
+        title = 'Quantidade de domicílios';
+        items = DOM_FAIXAS;
+      } else {
+        title = '% de acesso';
+        items = PERC_FAIXAS;
+      }
+
+      wrap.style.display = 'block';
+      titleEl.textContent = title;
+      list.innerHTML = items.map(f => `
+        <div class="row">
+          <span class="sw" style="background:${f.color}"></span>
+          <span>${f.label}</span>
+        </div>
+      `).join('');
+    }
+
+    async function refreshLayers(){
+      busy(true);
+      clearLayers();
+      const distrito = document.getElementById('selDistrito').value;
+      const bairroSel = document.getElementById('selBairro').value;
+
+      const selGrupo = document.getElementById('selGrupoIndicador');
+      const selInd   = document.getElementById('selIndicador');
+      const grupo = selGrupo ? selGrupo.value : 'dom';
+      const indicadorVal = selInd ? selInd.value : '';
+
+      if (!distrito || (distrito !== '__TODOS__' && !porDistrito[distrito])){
+        const st=document.getElementById('status');
+        if (st) st.textContent='0 setores exibidos';
+        busy(false);
+        document.getElementById('legend').style.display = 'none';
+        return;
+      }
+
+      const setoresDistrito = (distrito === '__TODOS__')
+        ? Object.values(porDistrito).flatMap(obj => obj.setores || [])
+        : porDistrito[distrito].setores;
+
+      let setoresFiltro = [];
+      if (bairroSel === '__TODOS__'){
+        setoresFiltro = setoresDistrito;
+      } else {
+        setoresFiltro = setoresDistrito.filter(c=> (setores[c].Bairro || '') === bairroSel);
+      }
+
+      const st=document.getElementById('status');
+      if(st) st.textContent=`${setoresFiltro.length} setores exibidos`;
+
+      let mode = 'dom';
+      if (grupo === 'agua' && indicadorVal){
+        mode = 'agua';
+      } else if (grupo === 'banheiro' && indicadorVal){
+        mode = 'banheiro';
+      } else if (grupo === 'lixo' && indicadorVal){
+        mode = 'lixo';
+      }
+
+      for (const cod of setoresFiltro){
+        const rec = setores[cod];
+
+        let color;
+        let highlight = null;
+        let tooltipText = null;
+
+        if (mode === 'agua' || mode === 'banheiro' || mode === 'lixo'){
+          const p = getPercent(rec, indicadorVal);
+          color = colorByPerc(p);
+          highlight = { mode, label: indicadorVal, value: p };
+          if (p !== null && !isNaN(p)){
+            tooltipText = p.toFixed(1).toString().replace('.',',') + '%';
+          }
+        } else {
+          const nDom = getDomicilios(rec);
+          color = colorByDom(nDom);
+          highlight = { mode: 'dom', label: 'Domicílios', value: nDom };
+          if (!isNaN(nDom)) {
+            tooltipText = Number(nDom).toLocaleString('pt-BR');
+          }
+        }
+
+        const filename = filenameFromSetor(cod);
+        const tryUrls = [encodeURI(KML_BASE+filename), encodeURI(KML_BASE+`${cod}.kml`)];
+
+        const groupLayer = L.layerGroup();
+        activeLayers.push(groupLayer);
+
+        const loadWithFallback = (i=0)=>{
+          if (i>=tryUrls.length){
+            console.warn('KML não encontrado para setor', cod);
+            return;
+          }
+          const url = tryUrls[i];
+          const k = omnivore.kml(url);
+          k.on('ready', ()=>{
+            k.eachLayer(lyr=>{
+              if (lyr.setStyle){
+                lyr.setStyle({
+                  color,
+                  weight: 1.1,
+                  opacity: 0.9,
+                  fillColor: color,
+                  fillOpacity: 0.55
+                });
+                const arr = sectorLayers.get(cod) || [];
+                arr.push(lyr);
+                sectorLayers.set(cod, arr);
+              }
+
+              lyr.on('click', (e)=>{
+                L.popup()
+                  .setLatLng(e.latlng)
+                  .setContent(popupHtml(rec, highlight))
+                  .openOn(map);
+              });
+
+              if (tooltipText){
+                lyr.on('mouseover', ()=>{
+                  lyr.bindTooltip(tooltipText, {
+                    permanent:false,
+                    direction:'center',
+                    className:'sector-badge-tooltip'
+                  }).openTooltip();
+                });
+                lyr.on('mouseout', ()=>{
+                  lyr.closeTooltip();
+                });
+              }
+
+              groupLayer.addLayer(lyr);
+            });
+            map.addLayer(groupLayer);
+          });
+          k.on('error', ()=> loadWithFallback(i+1));
+        };
+        loadWithFallback();
+      }
+
+      setTimeout(()=>{
+        try{
+          const all = [];
+          activeLayers.forEach(g=> g.eachLayer && g.eachLayer(l=> all.push(l)));
+          if (all.length){
+            const fg = L.featureGroup(all);
+            map.fitBounds(fg.getBounds(), {padding:[20,20]});
+          }
+        }catch(e){}
+
+        const tipoCode = (grupo === 'dom') ? indicadorVal : '';
+        applyOpacityByDomicilios(distrito, bairroSel, tipoCode);
+
+        if(st) st.textContent=`${setoresFiltro.length} setores exibidos`;
+        busy(false);
+
+        updateLegend(mode);
+      }, 800);
+    }
+
+    // ==== KML por Distrito ====
+    const REGIONS_KML = [
+      { id: 'barcarena',   label: 'Barcarena (Sede)', file: 'distritos/kml/barcarena_dissolved_lines.kml',   color: '#7c3aed' },
+      { id: 'murucupi',    label: 'Murucupi',         file: 'distritos/kml/murucupi_dissolved_lines.kml',    color: '#f59e0b' },
+      { id: 'estradas',    label: 'Estradas',         file: 'distritos/kml/estradas_dissolved_lines.kml',    color: '#2563eb' },
+      { id: 'ilhas',       label: 'Ilhas',            file: 'distritos/kml/ilhas_dissolved_lines.kml',       color: '#10b981' },
+      { id: 'viladoconde', label: 'Vila do Conde',    file: 'distritos/kml/viladoconde_dissolved_lines.kml', color: '#ef4444' },
+    ];
+    const regionKmlLayers = new Map();
+
+    function dashedStyle(color){
+      return { color, weight: 3, opacity: 0.95, dashArray: '6 6', fillOpacity: 0 };
+    }
+    function addRegionLayer(r){
+      if (regionKmlLayers.has(r.id)){
+        const layer = regionKmlLayers.get(r.id);
+        if (!map.hasLayer(layer)) layer.addTo(map);
+        return layer;
+      }
+      const layer = omnivore.kml(r.file, null, L.geoJSON(null, { style: dashedStyle(r.color) }));
+      layer.addTo(map);
+      regionKmlLayers.set(r.id, layer);
+      return layer;
+    }
+    function removeAllRegionLayers(){
+      for (const [,layer] of regionKmlLayers){
+        if (map.hasLayer(layer)) map.removeLayer(layer);
+      }
+    }
+    function loadRegionsForDistrito(distrito){
+      removeAllRegionLayers();
+      let toFit = [];
+
+      if (!distrito || distrito === '__TODOS__'){
+        REGIONS_KML.forEach(r=>{
+          const layer = addRegionLayer(r);
+          toFit.push(layer);
+        });
+      } else {
+        const dNorm = norm(distrito).toLowerCase();
+
+        let r = REGIONS_KML.find(x =>
+          norm(x.label).toLowerCase() === dNorm ||
+          norm(x.id).toLowerCase() === dNorm
+        );
+
+        if (!r){
+          if (dNorm.includes('estrad')) {
+            r = REGIONS_KML.find(x => x.id === 'estradas');
+          } else if (dNorm.includes('sede') || dNorm.includes('barcarena')) {
+            r = REGIONS_KML.find(x => x.id === 'barcarena');
+          } else if (dNorm.includes('murucupi')) {
+            r = REGIONS_KML.find(x => x.id === 'murucupi');
+          } else if (dNorm.includes('ilha')) {
+            r = REGIONS_KML.find(x => x.id === 'ilhas');
+          } else if (dNorm.includes('vila') && dNorm.includes('conde')) {
+            r = REGIONS_KML.find(x => x.id === 'viladoconde');
+          }
+        }
+
+        if (r){
+          const layer = addRegionLayer(r);
+          toFit.push(layer);
+        }
+      }
+
+      setTimeout(() => {
+        try{
+          const layers = [];
+          toFit.forEach(l => l && l.eachLayer && l.eachLayer(x => layers.push(x)));
+          if (layers.length){
+            const fg = L.featureGroup(layers);
+            const b = fg.getBounds();
+            if (b.isValid()) map.fitBounds(b.pad(0.08));
+          }
+        }catch(e){}
+      }, 300);
+    }
+
+    (async function init(){
+      await loadCsv();
+      const selDistrito = document.getElementById('selDistrito');
+      if (selDistrito.options.length>0){
+        selDistrito.value = '__TODOS__';
+        fillBairros(selDistrito.value);
+        loadRegionsForDistrito('__TODOS__');
+        refreshLayers();
+      }
+    })();
+  </script>
+
+  <script>
+    function mapTipoValue(v){
+      if (v === undefined || v === null) return '';
+      let raw = String(v).trim();
+      const m = raw.match(/\d+/);
+      const code = m ? m[0] : raw;
+      const dict = {
+        '1': 'Área urbana de alta densidade de edificações de cidade ou vila',
+        '2': 'Área urbana de baixa densidade de edificações de cidade ou vila',
+        '3': 'Núcleo urbano',
+        '5': 'Aglomerado rural - Povoado',
+        '6': 'Aglomerado rural - Núcleo rural',
+        '7': 'Aglomerado rural - Lugarejo',
+        '8': 'Área rural (exclusive aglomerados)',
+        '9': 'Massas de água'
+      };
+      return dict[code] ? dict[code] : raw;
+    }
+  </script>
+
+</body>
+</html>
