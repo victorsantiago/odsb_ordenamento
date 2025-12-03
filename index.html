@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ordenamento Territorial – Domicílios/Regiões</title>
+  <title>Ordenamento Territorial – Domicílios/Distritos</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -20,7 +20,7 @@
     .badge{display:flex;gap:8px;align-items:center;background:#eef2f9;padding:6px 10px;border-radius:12px}
     select{padding:6px 10px;border:1px solid #dbe3f0;border-radius:8px;background:#fff;color:#0b1020}
     #map{height:100%}
-    .legend{position:absolute;right:10px;bottom:10px;background:#fff;padding:10px 12px;border:1px solid var(--border);border-radius:10px;z-index:600;max-width:300px}
+    .legend{position:absolute;right:10px;bottom:30px;background:#fff;padding:10px 12px;border:1px solid var(--border);border-radius:10px;z-index:600;max-width:300px}
     .legend h4{margin:0 0 6px;font-size:13px}
     .legend .row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
     .sw{width:14px;height:14px;border-radius:3px;border:1px solid #cbd5e1}
@@ -60,6 +60,13 @@
       width:100%;
       margin:1px 0;
     }
+
+    /* linha fininha separando escalas x distritos */
+    .legend-sep{
+      border-top:1px solid #e5e7eb;
+      margin:6px 0 4px 0;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -73,13 +80,13 @@
           <select id="selDistrito"></select>
         </label>
 
-        <label class="badge">Bairro:
+        <label class="badge" id="bairroBadge">Bairro:
           <select id="selBairro"></select>
         </label>
 
         <!-- Recorte geográfico (grupo + detalhe) -->
         <div class="badge recorte-block">
-          <span class="recorte-block-label">Recorte geográfico</span>
+          <span class="recorte-block-label">Indicador:</span>
           <select id="selGrupoIndicador"></select>
           <select id="selIndicador"></select>
         </div>
@@ -93,6 +100,7 @@
   <div id="legend" class="legend" style="display:none">
     <h4 id="legendTitle"></h4>
     <div id="legendItems"></div>
+    <div id="legendDistritos"></div>
   </div>
 
   <div id="busy" class="busy">Carregando…</div>
@@ -231,6 +239,7 @@
         const v = selDistrito.value;
         fillBairros(v);
         loadRegionsForDistrito(v);
+        updateBairroVisibility(v);
         refreshLayers();
       });
       selBairro.addEventListener('change', refreshLayers);
@@ -485,10 +494,12 @@
       sectorLayers.clear();
     }
 
-    function updateLegend(mode){
+    // ---- LEGENDA: escalas + distritos separados por linha ----
+    function updateLegend(mode, distritoSel){
       const wrap = document.getElementById('legend');
       const list = document.getElementById('legendItems');
       const titleEl = document.getElementById('legendTitle');
+      const distrBox = document.getElementById('legendDistritos');
 
       let items, title;
       if (mode === 'dom'){
@@ -499,6 +510,7 @@
         items = PERC_FAIXAS;
       }
 
+      // monta escalas
       wrap.style.display = 'block';
       titleEl.textContent = title;
       list.innerHTML = items.map(f => `
@@ -507,6 +519,73 @@
           <span>${f.label}</span>
         </div>
       `).join('');
+
+      // monta parte dos distritos, após linha de separação
+      let distritoInnerHtml = '';
+
+      if (!distritoSel || distritoSel === '__TODOS__') {
+        // TODOS → lista todos os distritos com linha tracejada colorida
+        distritoInnerHtml = REGIONS_KML.map(r => `
+          <div style="display:flex;align-items:center;margin-top:1px;">
+            <span style="
+              display:inline-block;
+              width:32px;
+              height:0;
+              border-top:3px dashed ${r.color};
+            "></span>
+            <span style="margin-left:5px;">${r.label}</span>
+          </div>
+        `).join('');
+      } else {
+        // Distrito específico → só ele com linha tracejada
+        let corDistrito = null;
+        const dNorm = norm(distritoSel).toLowerCase();
+        let r = REGIONS_KML.find(x =>
+          norm(x.label).toLowerCase() === dNorm ||
+          norm(x.id).toLowerCase() === dNorm
+        );
+
+        if (!r){
+          if (dNorm.includes('estrad')) {
+            r = REGIONS_KML.find(x => x.id === 'estradas');
+          } else if (dNorm.includes('sede') || dNorm.includes('barcarena')) {
+            r = REGIONS_KML.find(x => x.id === 'barcarena');
+          } else if (dNorm.includes('murucupi')) {
+            r = REGIONS_KML.find(x => x.id === 'murucupi');
+          } else if (dNorm.includes('ilha')) {
+            r = REGIONS_KML.find(x => x.id === 'ilhas');
+          } else if (dNorm.includes('vila') && dNorm.includes('conde')) {
+            r = REGIONS_KML.find(x => x.id === 'viladoconde');
+          }
+        }
+
+        corDistrito = r ? r.color : null;
+
+        const linha = corDistrito
+          ? `<span style="
+                display:inline-block;
+                width:32px;
+                height:0;
+                border-top:3px dashed ${corDistrito};
+              "></span>`
+          : '';
+
+        distritoInnerHtml = `
+          <div style="display:flex;align-items:center;margin-top:1px;">
+            ${linha}
+            <span style="margin-left:5px;">${distritoSel}</span>
+          </div>
+        `;
+      }
+
+      if (distrBox){
+        distrBox.innerHTML = `
+          <div class="legend-sep">Distrito(s):</div>
+          <div style="font-size:11px;margin-top:2px;color:#555;">
+            ${distritoInnerHtml}
+          </div>
+        `;
+      }
     }
 
     async function refreshLayers(){
@@ -647,7 +726,7 @@
         if(st) st.textContent=`${setoresFiltro.length} setores exibidos`;
         busy(false);
 
-        updateLegend(mode);
+        updateLegend(mode, distrito);
       }, 800);
     }
 
@@ -730,6 +809,25 @@
       }, 300);
     }
 
+    // esconde/mostra o badge de Bairro, mantendo o espaço (visibility)
+    function updateBairroVisibility(distritoSel){
+      const selBairro = document.getElementById('selBairro');
+      const badge = document.getElementById('bairroBadge');
+      if (!selBairro || !badge) return;
+
+      const dNorm = norm(distritoSel || '').toLowerCase();
+      const shouldHide = !distritoSel || distritoSel === '__TODOS__' ||
+                         dNorm.includes('ilha') || dNorm.includes('estrad');
+
+      if (shouldHide) {
+        badge.style.visibility = 'hidden';
+        selBairro.disabled = true;
+      } else {
+        badge.style.visibility = 'visible';
+        selBairro.disabled = false;
+      }
+    }
+
     (async function init(){
       await loadCsv();
       const selDistrito = document.getElementById('selDistrito');
@@ -737,6 +835,7 @@
         selDistrito.value = '__TODOS__';
         fillBairros(selDistrito.value);
         loadRegionsForDistrito('__TODOS__');
+        updateBairroVisibility(selDistrito.value);
         refreshLayers();
       }
     })();
