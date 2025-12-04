@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ordenamento Territorial – Domicílios/Distritos</title>
+  <title>Ordenamento Territorial – Domicílios e Distritos</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,7 +30,21 @@
     table.min{border-collapse:collapse;width:100%;font-size:12px}
     table.min td{padding:3px 6px;border-bottom:1px solid #eee;vertical-align:top}
     .hint{margin-left:auto;color:#6b7280;font-size:12px}
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
+    .title-block h1 {
+      margin: 0;
+    }
+
+    .title-block .fonte {
+      font-size: 12px;
+      margin-top: 2px;
+      color: #4b5563; /* cinza suave */
+    }
     .sector-badge-tooltip.leaflet-tooltip{
       background:#ffffff;
       border:1px solid #d1d5db;
@@ -72,7 +86,10 @@
 <body>
   <div class="app">
     <header>
-      <h1>Domicílios</h1>
+      <div class="title-block">
+        <h1>Mapa dos Domicílios</h1>
+        <span class="fonte">Fonte: Elaborado com dados do IBGE (2022)</span>
+      </div>
       <div class="controls">
 
         <!-- Distrito unificado -->
